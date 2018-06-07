@@ -1,16 +1,16 @@
-version: "2.1"
+version: '2.1'
 services:
   mysql:
-    image: mysql:8.0.11
+    image: mysql:5.7
     ports:
       - 3306:3306
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: lportal
-      MYSQL_USER: user
+      MYSQL_USER: lportal
       MYSQL_PASSWORD: liferay
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
 
   elasticsearch:
     build: elasticsearch
