@@ -1,23 +1,35 @@
 version: "2.1"
 services:
+  mysql:
+    image: mysql:8.0.11
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lportal
+      MYSQL_USER: root
+      MYSQL_PASSWORD: liferay
+
   elasticsearch:
-    build: es
+    build: elasticsearch
     mem_limit: 4g
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - 9200:9200
+      - 9300:9300
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
-      - ./es/data/:/usr/share/elasticsearch/data/
-      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./es/config/logging.yml:/usr/share/elasticsearch/config/logging.yml
-      - ./es/config/userdict_ja.txt:/usr/share/elasticsearch/config/userdict_ja.txt
-      - ./es/logs/:/var/log/elasticsearch/
+      - ./elasticsearch/data/:/usr/share/elasticsearch/data/
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/logging.yml:/usr/share/elasticsearch/config/logging.yml
+      - ./elasticsearch/config/userdict_ja.txt:/usr/share/elasticsearch/config/userdict_ja.txt
+      - ./elasticsearch/logs/:/var/log/elasticsearch/
     environment:
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - xpack.graph.enabled=false
@@ -28,6 +40,6 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:6.1.4
     ports:
-      - "5601:5601"
+      - 5601:5601
     environment:
       - xpack.security.enabled=false
