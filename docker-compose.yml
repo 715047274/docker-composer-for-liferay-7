@@ -5,11 +5,10 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/config/custom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./mysql/config/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     environment:
-      MYSQL_DATABASE: lportal
-      MYSQL_USER: lportal
-      MYSQL_PASSWORD: liferay
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
 
   elasticsearch:
