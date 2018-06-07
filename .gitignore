@@ -1,2 +1,3 @@
-es/logs
-es/data
+elasticsearch/logs
+elasticsearch/data
+mysql/*
