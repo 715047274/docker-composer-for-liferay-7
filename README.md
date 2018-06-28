@@ -1,48 +1,58 @@
-# elasticsearch-docker-composer-for-liferay-7
-This is for setting up docker-composer to test Elasticsearch and Kuromoji against Liferay 7 GA6 / DXP de42 (Elasticsearch 6.1.3). **The JDK type (OpenJDK / OracleJDK) need to match between Elasticsearch and Liferay because Liferay using binary protocol to communicate with Elasticsearch. Master is ```Oracle jdk8``` version. If you are looking for ```${elasticsearch_version}_openjdk8``` version, please refer ```${elasticsearch_version}_openjdk8``` branch of this repository.**
+# docker-composer-for-liferay-7
 
-If you are using lower than Liferay 7 GA6 / DXP de42, please use branch ```2.4_openjdk8``` or ```2.4_oraclejdk8``` depending on what version of JDK type (OpenJDK / OracleJDK) using for Liferay.
+This is for setting up docker-composer to create a env to run Liferay 7.
 
 ## Required environment
 - Docker 17.06.2-ce >=
 - Java8 (Oracle JDK 8 or Open JDK 8)
 
-## How to set up (Oracle JDK, master branch)
+## How to set up
+
 1. Clone this repository
-2. Change the file permission of ```/es/docker-entrypoint.sh``` to executable.
-3. Go back to the root folder and run ```docker-compose up --build``` or just ```docker-compose up```
-4. Start Liferay DXP / 7
-5. Login as an administrator and navigate to Control Panel -> Configuration -> System Setting -> Basic configuration tab -> Elasticsearch
-6. Change Operation mode to REMOTE and Transport addresses to your IP according to the console log, '''publish_address {127.0.0.1:9300}'''. In this case, the Transport address should be ```"127.0.0.1:9300"```
-7. Click save and restart Liferay server
-8. Loging as an administrator, navigate to Control Panel -> Configuration -> Server Configuration and run reindex.
+2. Run `reset.sh`
+3. Run `up.sh`
+4. Set the portal to connect on local MySQL instance: 
+[database-templates](https://dev.liferay.com/pt/discover/reference/-/knowledge_base/7-0/database-templates)
+    ```
+    jdbc.default.username=root
+    jdbc.default.driverClassName=com.mysql.jdbc.Driver
+    jdbc.default.password=
+    jdbc.default.url=jdbc:mysql://localhost/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&useFastDateParsing=false&useUnicode=true
+    ```
+5. Set the portal to connect on local Elasticseach instance:
+    [configuring-elasticsearch-for-liferay](https://dev.liferay.com/en/discover/deployment/-/knowledge_base/7-0/configuring-elasticsearch-for-liferay-0#configuring-the-adapter-with-an-osgi-config-file).
+    ```
+    operationMode="REMOTE"
+    # If running Elasticsearch from a different computer:
+    #transportAddresses="ip.of.elasticsearch.node:9300"
+    # Highly recommended for all non-prodcution usage (e.g., practice, tests, diagnostics):
+    #logExceptionsOnly="false"
+    ```
+    You can jump this step and configure the portal on control panel:
+    [configuring-the-adapter-in-the-control-panel](https://dev.liferay.com/en/discover/deployment/-/knowledge_base/7-0/configuring-elasticsearch-for-liferay-0#configuring-the-adapter-in-the-control-panel).
 
-## How to set up (Open JDK, openjdk8 branch)
-1. Clone this repository
-2. Go back to the root folder and run ```docker-compose up --build``` or just ```docker-compose up```
-3. Start Liferay DXP / 7
-4. Login as an administrator and navigate to Control Panel -> Configuration -> System Setting -> Basic configuration tab -> Elasticsearch
-5. Change Operation mode to REMOTE and Transport addresses to your IP according to the console log, '''publish_address {127.0.0.1:9300}'''. In this case, the Transport address should be ```"127.0.0.1:9300"```
-6. Click save and restart Liferay server
-7. Loging as an administrator, navigate to Control Panel -> Configuration -> Server Configuration and run reindex.
+6. *(Additional)* Enable Felix Gogo Shell telnet connection:
+    [liferay-osgi-and-ssh-access](https://community.liferay.com/en/blogs/-/blogs/liferay-osgi-and-ssh-access).
 
-## Modify user dictionaly
-1. Open /es/config/userdict_ja.txt
-2. Modify contents according to the [user guide](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji-tokenizer.html)
-## Initialize set up after change configurations
-1. Stop services with ```docker-compose stop```
-2. Delete folders under ```/es/data```
-3. Run ```docker rm -f `docker ps -qa` ```
-4. Run ```docker rmi `docker images | sed -ne '2,$p' -e 's/ */ /g' | awk '{print $1":"$2}'` ```
-5. If 4 doesn't work, try ```docker rmi $(docker images | awk '/^<none>/ { print $3 }') ```
+    ```
+    module.framework.properties.osgi.console=11311
+    ```
 
-## Log files
-under ```/es/logs```
+7. Start Liferay DXP / 7
 
-## Data files
-under ```/es/data```
+## How to access elasticsearch and tools
+
+### Elasticsearch
+
+```http://localhost:9200```
+
+### Kibana (Analyzing tool for Elasticsearch)
+
+```http://localhost:5601```
+
 
 ## How to investigate query of Liferay
+
 Enable slow query log with low threshold would be the easiest way.
 1. Navigate to Sense ```http://localhost:5601/app/sense``` e.g.
 2. Modify query below appropriately.
@@ -66,8 +76,8 @@ PUT /[index_name]/_settings
     "index.indexing.slowlog.source": "1000"
 }
 ```
-3. Search / index and you'll see log files under ./es/logs
-you can also change ./es/config/elasticsearch.yml for above settings and run ```docker-compose up --build```
+3. Search / index and you'll see log files under ./elasticsearch/logs
+you can also change ./elasticsearch/config/elasticsearch.yml for above settings and run ```docker-compose up --build```
 
 ## Search from query to see how analyzer works.
 1. Navigate to ```http://localhost:5601/app/sense``` and select server (http://elasticsearch:9200)
@@ -79,10 +89,3 @@ GET /[index_name]/_analyze
   "text":  "東京都清掃局"
 }
 ```
-
-## How to access elasticsearch and tools
-### Elasticsearch
-```http://localhost:9200```
-
-### Kibana (Analyzing tool for Elasticsearch)
-```http://localhost:5601```
