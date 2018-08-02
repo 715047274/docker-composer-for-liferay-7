@@ -1,5 +1,6 @@
 version: '2.1'
 services:
+
   mysql:
     image: mysql:5.7
     ports:
@@ -10,6 +11,15 @@ services:
       - ./mysql/config/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - mysql
+    ports:
+      - 8090:80
+    environment:
+      - PMA_ARBITRARY=1
 
   elasticsearch:
     build: elasticsearch
