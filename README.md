@@ -14,11 +14,15 @@ This is for setting up docker-composer to create a env to run Liferay 7.
 3.  Run `up.sh`
 4.  Set the portal to connect on local MySQL instance:
     [database-templates](https://dev.liferay.com/pt/discover/reference/-/knowledge_base/7-0/database-templates)
-    `jdbc.default.username=root jdbc.default.driverClassName=com.mysql.jdbc.Driver jdbc.default.password= jdbc.default.url=jdbc:mysql://localhost/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&useFastDateParsing=false&useUnicode=true`
+    ```.properties
+    jdbc.default.username=root
+    jdbc.default.driverClassName=com.mysql.jdbc.Driver
+    jdbc.default.password= jdbc.default.url=jdbc:mysql://localhost/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&useFastDateParsing=false&useUnicode=true
+    ```
 5.  Set the portal to connect on local Elasticseach instance:
     [configuring-elasticsearch-for-liferay](https://dev.liferay.com/en/discover/deployment/-/knowledge_base/7-0/configuring-elasticsearch-for-liferay-0#configuring-the-adapter-with-an-osgi-config-file).
 
-    ```
+    ```.properties
     operationMode="REMOTE"
     # If running Elasticsearch from a different computer:
     #transportAddresses="ip.of.elasticsearch.node:9300"
